@@ -1,0 +1,173 @@
+Basics with rkt, the container engine by CoreOS
+
+27th June 2016
+
+Sergiusz Urbaniak
+rkt Engineer, CoreOS
+sur@coreos.com
+@_surbaniak
+
+* rkt - a brief history
+
+*December*2014* - _v0.1.0_
+
+- Prototype
+- Drive conversation (security, standards) and competition (healthy OSS) in container ecosystem
+
+*February*2016* - _v1.0.0_
+
+- Used inProduction
+- API stability guarantees
+
+*June*2016* - _v1.9.0_
+- Packaged in Debian, Fedora, Arch, NixOS
+
+* rkt - Philosophy, Idioms
+
+*UX:*"secure-by-default"*
+
+- Verify image signatures by default
+- Verify image integrity by default
+
+*Architecture:*Unix*philosophy*
+
+- Well-defined operations
+- No central priviledged long-running components
+- Separate privileges for different operations, i.e. "fetch"
+- Verbose at times
+
+* rkt - Security
+
+- User namespaces (Container `euid` `!=` `host_euid`)
+
+- SELinux contexts (Isolate individual pods)
+
+- VM containment (LKVM)
+
+- TPM measurements (Tamper-proof audit log of what's running)
+
+* rkt - Security (soon)
+
+- Finer-grained Linux capabilities
+- Seccomp defaults
+- better SELinux support
+- cgroup2 + cgroup namespaces support
+- qemu (hypervisor) support
+- unpriviledged containers
+
+* rkt - Composability
+
+*External*
+
+- Integrate with existing init system(s)
+- Work well with higher level cluster orchestration tools (i.e. Kubernetes)
+- Simple process model: rkt command _is_ the container
+- Any context applied to rkt (cgroups, etcd.) applies transitively to the pods inside rkt
+- Optional gRPC API server
+
+*Internal*
+
+- stage based architecture
+- Swappable execution engines running containers
+
+* rkt vs. Docker
+
+.image rkt-vs-docker-process-model.png 500 _
+
+* rkt vs. Docker
+
+.image rkt-vs-docker-fetch.png 500 _
+
+* rkt vs. ?
+
+.link https://github.com/coreos/rkt/blob/master/Documentation/rkt-vs-other-projects.md
+
+* rkt stages - coreos
+
+stage1-coreos.aci
+
+  host OS
+  └─ rkt
+    └─ systemd-nspawn
+      └─ systemd
+        └─ chroot
+          └─ user-app1
+
+* rkt stages - fly
+
+stage1-fly.aci
+
+  host OS
+  └─ rkt
+    └─ chroot
+      └─ user-app1
+
+* k8s - Overviev
+
+.image k8s-overview.png 400 _
+
+1. Scheduler: bla bla
+2. Controller Manager: bla bla
+3. Kubelet: bla bla
+
+* rkt8s - nginx Service
+
+  kind: Service
+  apiVersion: v1
+  metadata:
+    labels:
+      app: nginx
+    name: nginx
+  spec:
+    type: NodePort
+    ports:
+    - port: 80
+      targetPort: 80
+    selector:
+      app: nginx
+
+* rkt8s - nginx Replication Controller
+
+    kind: ReplicationController
+    apiVersion: v1
+    metadata:
+      labels:
+        app: nginx
+      name: nginx
+    spec:
+      replicas: 1
+      selector:
+        app: nginx
+      template:
+        metadata:
+          labels:
+            app: nginx
+        spec:
+          containers:
+          - name: nginx
+            image: nginx
+            ports:
+            - containerPort: 80
+              protocol: TCP
+
+* rkt8s - busybox pod
+
+  apiVersion: v1
+  kind: Pod
+  metadata:
+    name: busybox-sleep
+  spec:
+    containers:
+    - name: busybox
+      image: progrium/busybox
+      args:
+      - sleep
+      - "1000000"
+
+exec into the pod:
+
+  kubectl exec -ti busybox-sleep /bin/sh
+
+* rkt8s - Dashboard
+
+  kubectl create -f https://rawgit.com/kubernetes/dashboard/master/src/deploy/kubernetes-dashboard.yaml
