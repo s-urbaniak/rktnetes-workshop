@@ -7,6 +7,64 @@ rkt Engineer, CoreOS
 sur@coreos.com
 @_surbaniak
 
+* whoami
+
+Software Engineer at CoreOS
+
+rkt developer
+
+Yes ... I do use the Linux Desktop :-)
+
+* Overview
+
+.image rkt8s.png _ 600
+
+- Learn about rkt
+- use rkt
+- Learn about Kubernetes
+- use Kubernetes with rkt
+
+Requirements:
+
+- Vagrant
+- Virtualbox
+
+* Setup
+
+Open this presentation at
+
+.link http://goo.gl/kUuiyN
+
+* Vagrant & VirtualBox
+
+Create this `Vagrantfile`:
+
+  Vagrant.configure("2") do |config|
+    config.vm.box = "sur/rktnetes"
+    config.vm.provider "virtualbox" do |vb|
+      vb.gui = false
+      vb.memory = "2048"
+      vb.cpus = "2"
+    end
+
+    config.vm.network "private_network", type: "dhcp"
+    config.vm.synced_folder '.', '/vagrant', disabled: true
+  end
+
+Execute:
+
+  vagrant up --provider=virtualbox
+
+* rkt - What is it?
+
+rkt (pronounced _rock-it_) is a CLI for running app containers on Linux. rkt is designed to be secure, composable, and standards-based.
+
+- It runs on Linux only (currently).
+
+- It runs on Intel `amd64`.
+
+- Port to `arm64 is underway.
+
 * rkt - a brief history
 
 *December*2014* - _v0.1.0_
@@ -20,6 +78,7 @@ sur@coreos.com
 - API stability guarantees
 
 *June*2016* - _v1.9.0_
+
 - Packaged in Debian, Fedora, Arch, NixOS
 
 * rkt - Philosophy, Idioms
@@ -78,11 +137,49 @@ sur@coreos.com
 
 .image rkt-vs-docker-fetch.png 500 _
 
+* rkt - Speaking of images
+
+.image image-standards.png
+
 * rkt vs. ?
 
 .link https://github.com/coreos/rkt/blob/master/Documentation/rkt-vs-other-projects.md
 
-* rkt stages - coreos
+* rkt stages
+
+Execution with rkt is divided into several distinct stages.
+
+*stage0*
+
+The `rkt` binary itself.
+
+- fetch images
+- generate pod UUIDs, manifest
+- create filesystem for the pod
+- set up further stages
+- unpack stage1 into pod file system
+- unpack app images into stage2 directories
+
+* rkt stages - stage1
+
+*stage1*:
+
+An image providing:
+
+- Initializes container isolation
+- Starts and initializes container supervision
+- Reads pods and image manifests
+- Starts the actual applications
+
+This is swappable, comes in different "flavors":
+
+- _fly_: does nothing really ... just a chroot environment
+- _coreos_: uses Linux cgroups, namespaces, leverages systemd
+- _kvm_: Uses LKVM supervisor to boot a real virtualized kernel
+
+* rkt stages - coreos stage1
+
+Provides container isolation
 
 stage1-coreos.aci
 
@@ -93,7 +190,10 @@ stage1-coreos.aci
         └─ chroot
           └─ user-app1
 
-* rkt stages - fly
+- *systemd-nspawn*: Implements the initialization of cgroups, namespaces
+- *systemd*: Implements supervision of containers
+
+* rkt stages - fly stage1
 
 stage1-fly.aci
 
@@ -102,13 +202,34 @@ stage1-fly.aci
     └─ chroot
       └─ user-app1
 
+- Just a chroot'ed application
+
+but
+
+- Secure image retrieval including signature validation
+- Lightweight, isolated package manager
+
+* rkt stages - ??? stage1
+
+Crazy ideas:
+
+- _xhyve_: OSX virtualization allowing rkt to run natively on a Mac
+- _runit_: Don't like systemd? Bring your own isolator/supervisor
+
+PRs/Contributions welcome!
+
+* rkt stages - fly stage2
+
+.image you.png _ 400
+
 * k8s - Overviev
 
-.image k8s-overview.png 400 _
+.image k8s-overview.png 350 _
 
-1. Scheduler: bla bla
-2. Controller Manager: bla bla
-3. Kubelet: bla bla
+1. Watches created pods, assigns them to nodes
+2. Runs controllers (node ctl, replication ctl, endpoint ctl, service account ctl, ...)
+3. Watches for pods assigned to its node, runs *rkt*!
+4. Manipulates network rules (iptables) for services on a node, does connection forwarding.
 
 * rkt8s - nginx Service
 
