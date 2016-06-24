@@ -1,0 +1,8 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="ac-discovery" content="s-urbaniak.github.io/rkt8s-workshop/redis-service https://github.com/s-urbaniak/redis-service/releases/download/v{version}/redis-service-{version}-{os}-{arch}.{ext}">
+    <meta name="ac-discovery-pubkeys" content="s-urbaniak.github.io/rkt8s-workshop https://s-urbaniak.github.io/rkt8s-workshop/pubkeys.gpg">
+  </head>
+</html>
