@@ -2,13 +2,6 @@
 <html lang="en-us">
   <head>
     <meta charset="UTF-8">
-    <title>rkt8s workshop by s-urbaniak</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
-    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
-    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
-    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
-
     <meta name="ac-discovery" content="s-urbaniak.github.io/rkt8s-workshop/inspector https://github.com/s-urbaniak/inspector/releases/download/v{version}/inspector-{version}-{os}-{arch}.{ext}">
     <meta name="ac-discovery-pubkeys" content="s-urbaniak.github.io/rkt8s-workshop/inspector https://s-urbaniak.github.io/rkt8s-workshop/pubkeys.gpg">
   </head>
