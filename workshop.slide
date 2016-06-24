@@ -51,7 +51,7 @@ Create this `Vagrantfile`:
 
 Execute:
 
-  vagrant box add virtualbox.box --name sur/^Ctnetes
+  vagrant box add virtualbox.box --name sur/rkttnetes
   vagrant up --provider=virtualbox
 
 * rkt - What is it?
