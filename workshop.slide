@@ -35,8 +35,6 @@ Open this presentation at
 
 .link http://goo.gl/kUuiyN
 
-* Vagrant & VirtualBox
-
 Create this `Vagrantfile`:
 
   Vagrant.configure("2") do |config|
@@ -53,6 +51,7 @@ Create this `Vagrantfile`:
 
 Execute:
 
+  vagrant box add virtualbox.box --name sur/^Ctnetes
   vagrant up --provider=virtualbox
 
 * rkt - What is it?
