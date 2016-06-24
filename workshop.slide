@@ -20,9 +20,9 @@ Yes ... I do use the Linux Desktop :-)
 .image rkt8s.png _ 600
 
 - Learn about rkt
-- use rkt
+- Use rkt
 - Learn about Kubernetes
-- use Kubernetes with rkt
+- Use Kubernetes with rkt
 
 Requirements:
 
@@ -62,7 +62,7 @@ rkt (pronounced _rock-it_) is a CLI for running app containers on Linux. rkt is 
 
 - It runs on Intel `amd64`.
 
-- Port to `arm64 is underway.
+- Port to `arm64` is underway.
 
 * rkt - a brief history
 
@@ -108,10 +108,10 @@ rkt (pronounced _rock-it_) is a CLI for running app containers on Linux. rkt is 
 
 - Finer-grained Linux capabilities
 - Seccomp defaults
-- better SELinux support
-- cgroup2 + cgroup namespaces support
-- qemu (hypervisor) support
-- unpriviledged containers
+- Better SELinux support
+- Cgroup2 + cgroup namespaces support
+- Qemu (hypervisor) support
+- Unpriviledged containers
 
 * rkt - Composability
 
@@ -140,6 +140,27 @@ rkt (pronounced _rock-it_) is a CLI for running app containers on Linux. rkt is 
 
 .image image-standards.png
 
+* rkt - Image support
+
+- ACI - yes
+- Docker - yes
+
+Caveat: Docker images do not suport signing, start with `--insecure-options=image`
+
+- OCI - WIP
+
+*Workshop*time*
+
+1. Start nginx
+
+  rkt run --insecure-options=image docker://nginx
+
+2. Start an interactive container
+
+  rkt run --insecure-options=image --interactive docker://progrium/busybox
+
+quit with three-times `Ctrl-]`
+
 * rkt vs. ?
 
 .link https://github.com/coreos/rkt/blob/master/Documentation/rkt-vs-other-projects.md
@@ -152,12 +173,12 @@ Execution with rkt is divided into several distinct stages.
 
 The `rkt` binary itself.
 
-- fetch images
-- generate pod UUIDs, manifest
-- create filesystem for the pod
-- set up further stages
-- unpack stage1 into pod file system
-- unpack app images into stage2 directories
+- Fetch images
+- Generate pod UUIDs, manifest
+- Create filesystem for the pod
+- Set up further stages
+- Unpack stage1 into pod file system
+- Unpack app images into stage2 directories
 
 * rkt stages - stage1
 
@@ -221,7 +242,145 @@ PRs/Contributions welcome!
 
 .image you.png _ 400
 
-* k8s - Overviev
+* rkt - build your own image
+
+*Workshop*time*
+
+.link https://s-urbaniak.github.io/rkt8s-workshop
+.link https://github.com/s-urbaniak/inspector
+
+- Build a small Go application
+- Build an ACI image
+- Sign the image using `gpg`
+- Make the image discoverable via github pages
+
+* Let's step back
+
+.image os-procs.png _ 200
+
+In a classical "OS" setup we have:
+
+- A supervisor, aka "init daemon", aka PID1
+- Not only one process, but many processes
+- Processes work together, either via localhost net, IPC
+- Communicate with outside world
+
+* rkt - Pods
+
+.image pod-apps.png _ 300
+
+- Grouping of applications executing in a shared context (network, namespaces, volumes)
+- Shared fate
+- The _only_ execution primitive: single applications are modelled as singleton pods
+
+* rkt - Pods
+
+*Workshop*time*
+
+1. Create a pod having two apps
+
+* rkt - Networking
+
+The CNI (Container Network Interface)
+
+.image pod-net.png _ 300
+
+- Abstraction layer for network configuration
+- Single API to multiple, extensible networks
+- Narrow, simple API
+- Plugins for third-party implementations
+
+* rkt - Networking - Host Mode
+
+.image host-mode.png _ 300
+
+  rkt run --net=host ...
+
+- Inherit the network namespace of the process that is invoking rkt.
+- Pod apps are able to access everything associated with the host’s network interfaces.
+
+*Workshop*time*
+
+1. Start nginx using `--net=host`
+
+* rkt - Networking - Default Mode (CNI ptp)
+
+.image ptp.png _ 300
+
+  rkt run --net ...
+  rkt run --net=default ...
+
+.link https://github.com/containernetworking/cni/blob/master/Documentation/ptp.md
+
+- Creates a virtual ethernet pair
+- One placed in the pod
+- Other one placed on the host
+
+* rkt - Networking - CNI brigde
+
+.image bridge.png _ 300
+
+.link https://github.com/containernetworking/cni/blob/master/Documentation/bridge.md
+
+- Creates a virtual ethernet pair
+- One placed in the pod
+- Other one placed on the host
+- Host veth pluggind into a linux bridge
+
+* rkt - Networking - CNI macvlan
+
+.image macvlan.png _ 300
+
+.link https://github.com/containernetworking/cni/blob/master/Documentation/macvlan.md
+
+- Functions like a switch
+- Pods get different MAC addresses
+- Pods share the same physical device
+
+* rkt - Networking - CNI ipvlan
+
+.image ipvlan.png _ 300
+
+.link https://github.com/containernetworking/cni/blob/master/Documentation/ipvlan.md
+
+- Functions like a switch
+- Pods share the same MAC address
+- Pods get different IPs
+- Pods share the same physical device
+
+* rkt - Networking
+
+*Workshop*time*
+
+1. Configure a ptp network, start two pods
+2. Configure a bridget network, start two pods
+
+* rkt - Networking - SDN (software defined networking)
+
+.image pod-net-canal.png 300 _
+
+- Communicate with pods across different _hosts_
+- Each pod across all hosts gets its own IP
+- Virtual overlay network
+
+* Kubernetes - Overview
+
+.image flower.png
+
+.link https://github.com/kubernetes/kubernetes
+
+- Open Source project initiated by Google
+- Cluster-level container orchestration
+
+Handles:
+
+- Scheduling/Upgrades
+- Failure recovery
+- Scaling
+
+We are working very hard to make *rkt* a first class runtime in Kubernetes.
+
+* k8s - Internals
 
 .image k8s-overview.png 350 _
 
@@ -229,6 +388,20 @@ PRs/Contributions welcome!
 2. Runs controllers (node ctl, replication ctl, endpoint ctl, service account ctl, ...)
 3. Watches for pods assigned to its node, runs *rkt*!
 4. Manipulates network rules (iptables) for services on a node, does connection forwarding.
+
+* k8s - Let's do it!
+
+*Workshop*time*
+
+1. Start Kubernetes
+2. Create a service
+3. Launch nginx
+4. Launch busybox
+5. Exec into busybox
+6. Launch the Kubernetes dashboard
+7. Open it from the host machine
+
+See the next slides for templates.
 
 * rkt8s - nginx Service
 
@@ -284,7 +457,7 @@ PRs/Contributions welcome!
       - sleep
       - "1000000"
 
-exec into the pod:
+Exec into the pod:
 
   kubectl exec -ti busybox-sleep /bin/sh
 
