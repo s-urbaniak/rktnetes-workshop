@@ -51,7 +51,7 @@ Create this `Vagrantfile`:
 
 Execute:
 
-  vagrant box add virtualbox.box --name sur/rkttnetes
+  vagrant box add virtualbox.box --name sur/rktnetes
   vagrant up --provider=virtualbox
 
 * rkt - What is it?
@@ -59,9 +59,7 @@ Execute:
 rkt (pronounced _rock-it_) is a CLI for running app containers on Linux. rkt is designed to be secure, composable, and standards-based.
 
 - It runs on Linux only (currently).
-
 - It runs on Intel `amd64`.
-
 - Port to `arm64` is underway.
 
 * rkt - a brief history
@@ -73,7 +71,7 @@ rkt (pronounced _rock-it_) is a CLI for running app containers on Linux. rkt is 
 
 *February*2016* - _v1.0.0_
 
-- Used inProduction
+- Used in Production
 - API stability guarantees
 
 *June*2016* - _v1.9.0_
@@ -97,11 +95,8 @@ rkt (pronounced _rock-it_) is a CLI for running app containers on Linux. rkt is 
 * rkt - Security
 
 - User namespaces (Container `euid` `!=` `host_euid`)
-
 - SELinux contexts (Isolate individual pods)
-
 - VM containment (LKVM)
-
 - TPM measurements (Tamper-proof audit log of what's running)
 
 * rkt - Security (soon)
@@ -159,7 +154,7 @@ Caveat: Docker images do not suport signing, start with `--insecure-options=imag
 
   rkt run --insecure-options=image --interactive docker://progrium/busybox
 
-quit with three-times `Ctrl-]`
+quit by hitting `Ctrl-]` three times
 
 * rkt vs. ?
 
@@ -273,11 +268,17 @@ In a classical "OS" setup we have:
 - Shared fate
 - The _only_ execution primitive: single applications are modelled as singleton pods
 
-* rkt - Pods
+* rkt - Sample Pod: micro-service talking to Redis
 
 *Workshop*time*
 
-1. Create a pod having two apps
+.image redis-service.png _ 230
+
+  sudo rkt run --insecure-options=image docker://redis \
+    s-urbaniak.github.io/rkt8s-workshop/redis-service:0.0.1
+  rkt list && rkt cat-manifest deadbeef
+
+.link https://github.com/s-urbaniak/redis-service
 
 * rkt - Networking
 
@@ -378,9 +379,57 @@ Handles:
 - Failure recovery
 - Scaling
 
-We are working very hard to make *rkt* a first class runtime in Kubernetes.
+* k8s - Components - API Server
 
-* k8s - Internals
+- Validates, configures, persists for all Kubernetes API objects
+- Provides REST based operations via JSON
+- Uses etcd is its database
+
+* k8s - Components - Controller Manager
+
+.image control-loop.png _ 300
+
+- Embeds the core control loops
+- Is _state-less_
+- Is decoupled from etcd via the API-server
+
+Just a daemon talking to etcd
+
+* k8s - Components - Scheduler
+
+Schedules pods on nodes
+
+- Policy-rich
+- Topology-aware
+- Workload-specific
+- Considers resource requirements, QoS, HW/SW/policy constraints, ...
+
+Again ... just a daemon talking to etcd
+
+* k8s - Components - Kubelet
+
+- Primary node agent
+- Starts/Stops/Supervises pods on its node
+
+Sigh ... just a daemon talking to etcd and to *rkt* !!!
+
+Instructs rkt to:
+
+- Fetch pods
+- Start, and stop pods
+- Exec into pods
+- Tail pod logs
+
+PS: We are working very hard to make *rkt* a first class runtime in Kubernetes.
+
+* k8s - Components - Kube Proxy
+
+Primary network proxy on each node.
+
+- configures `iptables` to reflect services
+- Forwards TCP/UDP streams across a set of backends
+
+* k8s - The big picture
 
 .image k8s-overview.png 350 _
 
@@ -405,6 +454,8 @@ See the next slides for templates.
 
 * rkt8s - nginx Service
 
+*Workshop*time*
+
   kind: Service
   apiVersion: v1
   metadata:
@@ -418,6 +469,10 @@ See the next slides for templates.
       targetPort: 80
     selector:
       app: nginx
+
+ 
+
+  kubectl create -f nginx-svc.yaml
 
 * rkt8s - nginx Replication Controller
 
@@ -443,12 +498,18 @@ See the next slides for templates.
             - containerPort: 80
               protocol: TCP
 
+ 
+
+  kubectl create -f nginx-rc.yaml
+
 * rkt8s - busybox pod
+
+*Workshop*time*
 
   apiVersion: v1
   kind: Pod
   metadata:
-    name: busybox-sleep
+    name: busybox
   spec:
     containers:
     - name: busybox
@@ -457,10 +518,21 @@ See the next slides for templates.
       - sleep
       - "1000000"
 
+ 
+
+  kubectl create -f busybox.yaml
+
 Exec into the pod:
 
-  kubectl exec -ti busybox-sleep /bin/sh
+  kubectl exec -ti busybox /bin/sh
 
 * rkt8s - Dashboard
 
+*Workshop*time*
+
   kubectl create -f https://rawgit.com/kubernetes/dashboard/master/src/deploy/kubernetes-dashboard.yaml
+
+  kubect get po --namespace=kube-system kubernetes-dashboard -o yaml
+
+1. Get the assigned NodePort
+2. Open http://<vm-ip>:NodePort on the host
