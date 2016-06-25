@@ -326,6 +326,10 @@ Pros:
 - Separate the leader logic from the election logic
 - Swappable algorithms/technologies/environments
 
+Ready-to-use generic leader elector:
+
+.link http://blog.kubernetes.io/2016/01/simple-leader-election-with-Kubernetes.html
+
 * Pods - Work queue pattern
 
 .image pattern-work-queue.png _ 400
