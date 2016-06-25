@@ -280,6 +280,66 @@ In a classical "OS" setup we have:
 
 .link https://github.com/s-urbaniak/redis-service
 
+* Pods - Patterns, patterns everywhere
+
+Container/App Design Patterns
+
+- Kubernetes enables new design patterns
+- Similar to OO patterns
+- Key difference: technologically agnostic
+
+.link http://blog.kubernetes.io/2016/06/container-design-patterns.html
+.link https://www.usenix.org/system/files/conference/hotcloud16/hotcloud16_burns.pdf
+
+* Pods - Sidecar pattern
+
+.image pattern-sidecar.png _ 400
+
+- Auxiliary app
+- Extend, enhance main app
+
+Pros:
+
+- Separate packaging units
+- Each app contained in a separate failure boundary
+- Potentially different technologies/languages
+
+* Pods - Ambassador pattern
+
+.image pattern-ambassador.png _ 400
+
+- Proxy communication
+- Separation of concerns
+- Main app has simplified view
+
+* Pods - Adapter pattern
+
+.image pattern-adapter.png _ 400
+
+- Use an interface of an existing app as another interface
+- Very useful for legacy apps, translating protocols
+
+* Pods - Leader election pattern
+
+.image pattern-leader.png _ 400
+
+- Separate the leader logic from the election logic
+- Swappable algorithms/technologies/environments
+
+* Pods - Work queue pattern
+
+.image pattern-work-queue.png _ 400
+
+- Separate app logic from queue enqueing/dequeing
+
+* Pods - Scatter gather pattern
+
+.image pattern-scatter-gather.png _ 400
+
+- Main app sends a simple request
+- Auxiliary app implements complex scatter/gather logic
+- Fan-Out/Fan-In requests separate from main app
+
 * rkt - Networking
 
 The CNI (Container Network Interface)
