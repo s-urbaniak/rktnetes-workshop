@@ -38,7 +38,8 @@ Open this presentation at
 Execute:
 
   vagrant box add package.box --name rkt8s
-  vagrant up --provider=virtualbox
+  vagrant up --provider=virtualbox && vagrant ssh
+  for u in proxy kubelet scheduler controller-manager apiserver proxy etcd; do sudo systemctl stop $u; done
 
 Create this `Vagrantfile`:
 
@@ -595,7 +596,7 @@ Exec into the pod:
 *Workshop*time*
 
   kubectl create -f https://rawgit.com/kubernetes/dashboard/master/src/deploy/kubernetes-dashboard.yaml
-
+  ip address show dev eth1
   kubect get po --namespace=kube-system kubernetes-dashboard -o yaml
 
 1. Get the assigned NodePort
