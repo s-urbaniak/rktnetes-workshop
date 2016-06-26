@@ -37,8 +37,6 @@ Open this presentation at
 
 Execute:
 
-  cp package.box ~/rkt/package.box
-  cd ~/rkt
   vagrant box add package.box --name rkt8s
   vagrant up --provider=virtualbox
 
