@@ -98,7 +98,7 @@ mkdir --parents /var/lib/docker
 mkdir --parents /var/lib/kubelet
 mkdir --parents /run/kubelet
 mkdir --parents /var/run/kubernetes
-mkdir --prents /etc/rkt/net.d
+mkdir --parents /etc/rkt/net.d
 
 cp /vagrant/resolv.conf.conf /etc/rkt/net.d
 cp /vagrant/k8s.conf /etc/rkt/net.d
