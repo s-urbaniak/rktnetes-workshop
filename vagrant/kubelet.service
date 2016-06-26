@@ -17,8 +17,9 @@ ExecStart=/usr/bin/hyperkube \
 	--address=0.0.0.0 \
 	--api-servers=0.0.0.0:8080 \
 	--cpu-cfs-quota=false \
-    --cluster-dns=10.0.0.10 --cluster-domain=cluster.local \
-    --network-plugin-dir=/opt/cni/bin \
+	--cluster-dns=10.0.0.10 --cluster-domain=cluster.local \
+	--network-plugin-dir=/opt/cni/bin \
+	--resolv-conf=/etc/kubernetes/resolv.conf \
 	--port=10250
 
 [Install]

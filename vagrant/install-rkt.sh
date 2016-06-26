@@ -90,11 +90,6 @@ systemd-tmpfiles --create /usr/lib/tmpfiles.d/rkt.conf
 gpasswd -a vagrant rkt
 gpasswd -a vagrant rkt-admin
 
-mkdir -p /etc/rkt/net.d
-cp /vagrant/k8s.conf /etc/rkt/net.d
-cp /vagrant/bashrc /home/vagrant/.bashrc
-chown vagrant:vagrant ~/.bashrc
-
 cp /vagrant/selinux.config /etc/selinux/config
 setenforce 0
 
@@ -103,6 +98,13 @@ mkdir --parents /var/lib/docker
 mkdir --parents /var/lib/kubelet
 mkdir --parents /run/kubelet
 mkdir --parents /var/run/kubernetes
+mkdir --prents /etc/rkt/net.d
+
+cp /vagrant/resolv.conf.conf /etc/rkt/net.d
+cp /vagrant/k8s.conf /etc/rkt/net.d
+cp /vagrant/bashrc /home/vagrant/.bashrc
+cp /vagrant/resolv.conf /etc/kubernetes/resolv.conf
+chown vagrant:vagrant ~/.bashrc
 
 openssl genrsa -out /etc/kubernetes/kube-serviceaccount.key 2048
 
