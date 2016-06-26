@@ -35,10 +35,17 @@ Open this presentation at
 
 .link http://goo.gl/kUuiyN
 
+Execute:
+
+  cp package.box ~/rkt/package.box
+  cd ~/rkt
+  vagrant box add package.box --name rkt8s
+  vagrant up --provider=virtualbox
+
 Create this `Vagrantfile`:
 
   Vagrant.configure("2") do |config|
-    config.vm.box = "sur/rktnetes"
+    config.vm.box = "rkt8s"
     config.vm.provider "virtualbox" do |vb|
       vb.gui = false
       vb.memory = "2048"
@@ -48,11 +55,6 @@ Create this `Vagrantfile`:
     config.vm.network "private_network", type: "dhcp"
     config.vm.synced_folder '.', '/vagrant', disabled: true
   end
-
-Execute:
-
-  vagrant box add virtualbox.box --name sur/rktnetes
-  vagrant up --provider=virtualbox
 
 * rkt - What is it?
 
