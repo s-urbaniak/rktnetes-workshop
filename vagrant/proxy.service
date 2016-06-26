@@ -1,0 +1,16 @@
+[Unit]
+After=network.target
+
+After=apiserver.service
+Requires=apiserver.service
+
+[Service]
+ExecStart=/usr/bin/hyperkube \
+	proxy \
+	--v=3 \
+	--hostname-override=127.0.0.1 \
+	--master=http://0.0.0.0:8080
+
+[Install]
+WantedBy=multi-user.target
+

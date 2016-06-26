@@ -1,0 +1,13 @@
+[Unit]
+Description=rkt api service socket
+PartOf=rkt-api.service
+
+[Socket]
+ListenStream=/run/rkt/api-svc.sock
+SocketMode=0660
+SocketUser=root
+SocketGroup=root
+RemoveOnStop=true
+
+[Install]
+WantedBy=sockets.target

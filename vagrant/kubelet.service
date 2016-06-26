@@ -1,0 +1,25 @@
+[Unit]
+After=network.target
+
+After=apiserver.service
+Requires=apiserver.service
+
+[Service]
+ExecStart=/usr/bin/hyperkube \
+	kubelet \
+	--v=3 \
+	--chaos-chance=0.0 \
+	--container-runtime=rkt \
+	--rkt-path=/usr/bin/rkt \
+	--rkt-stage1-image=coreos.com/rkt/stage1-coreos:1.9.1 \
+	--hostname-override=127.0.0.1 \
+	--cloud-provider= \
+	--address=0.0.0.0 \
+	--api-servers=0.0.0.0:8080 \
+	--cpu-cfs-quota=false \
+    --cluster-dns=10.0.0.10 --cluster-domain=cluster.local \
+    --network-plugin-dir=/opt/cni/bin \
+	--port=10250
+
+[Install]
+WantedBy=multi-user.target

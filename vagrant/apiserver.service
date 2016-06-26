@@ -1,0 +1,33 @@
+[Unit]
+After=network.target
+
+After=etcd.service
+Requires=etcd.service
+
+[Service]
+ExecStart=/usr/bin/rkt run \
+	--net=host \
+	--volume etc-kubernetes,kind=host,source=/etc/kubernetes \
+	--volume var-run-kubernetes,kind=host,source=/var/run/kubernetes \
+	--mount volume=etc-kubernetes,target=/etc/kubernetes \
+	--mount volume=var-run-kubernetes,target=/var/run/kubernetes \
+	quay.io/coreos/hyperkube:v1.3.0-beta.2_coreos.0 \
+	--exec=/hyperkube \
+	-- \
+	apiserver \
+	--v=3 \
+	--cert-dir=/var/run/kubernetes \
+	--service-account-key-file=/etc/kubernetes/kube-serviceaccount.key \
+	--service-account-lookup=false \
+	--admission-control=NamespaceLifecycle,LimitRanger,SecurityContextDeny,ServiceAccount,ResourceQuota \
+	--insecure-bind-address=0.0.0.0 \
+	--insecure-port=8080 \
+	--advertise-address=0.0.0.0 \
+	--etcd-servers=http://127.0.0.1:4001 \
+	--service-cluster-ip-range=10.0.0.0/24 \
+	--cloud-provider= \
+	\'--cors-allowed-origins=/127.0.0.1(:[0-9]+)?$,/localhost(:[0-9]+)?$\'
+
+[Install]
+WantedBy=multi-user.target
+

@@ -243,6 +243,7 @@ PRs/Contributions welcome!
 
 .link https://s-urbaniak.github.io/rkt8s-workshop
 .link https://github.com/s-urbaniak/inspector
+.link https://coreos.com/rkt/docs/latest/signing-and-verification-guide.html
 
 - Build a small Go application
 - Build an ACI image
