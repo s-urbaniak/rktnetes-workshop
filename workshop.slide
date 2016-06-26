@@ -420,8 +420,7 @@ The CNI (Container Network Interface)
 
 *Workshop*time*
 
-1. Configure a ptp network, start two pods
-2. Configure a bridget network, start two pods
+Configure a ptp network, start two `busybox` pods pinging each other.
 
 * rkt - Networking - SDN (software defined networking)
 
