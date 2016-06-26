@@ -2,30 +2,6 @@
 set -e
 set -x
 
-wait_for_url() {
-  local url=$1
-  local prefix=${2:-}
-  local wait=${3:-1}
-  local times=${4:-30}
-
-  which curl >/dev/null || {
-    echo "curl must be installed"
-    exit 1
-  }
-
-  local i
-  for i in $(seq 1 $times); do
-    local out
-    if out=$(curl -fs $url 2>/dev/null); then
-      echo "On try ${i}, ${prefix}: ${out}"
-      return 0
-    fi
-    sleep ${wait}
-  done
-  echo "Timed out waiting for ${prefix} to answer at ${url}; tried ${times} waiting ${wait} between each"
-  return 1
-}
-
 cd $(mktemp -d)
 
 version="1.9.1"
@@ -125,8 +101,3 @@ for unit in rkt-api etcd apiserver controller-manager kubelet scheduler proxy; d
     systemctl enable ${unit}
     systemctl start ${unit}
 done
-
-wait_for_url "http://127.0.0.1:8080/healthz" "apiserver" 1 30
-
-kubectl create -f /vagrant/skydns-svc.yaml
-kubectl create -f /vagrant/skydns-rc.yaml
