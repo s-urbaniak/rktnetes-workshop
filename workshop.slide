@@ -39,7 +39,6 @@ Execute:
 
   vagrant box add package.box --name rkt8s
   vagrant up --provider=virtualbox && vagrant ssh
-  for u in proxy kubelet scheduler controller-manager apiserver proxy etcd; do sudo systemctl stop $u; done
 
 Create this `Vagrantfile`:
 
