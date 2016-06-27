@@ -1,8 +1,8 @@
 [Unit]
 After=network.target
 
-After=apiserver.service
-Requires=apiserver.service
+After=wait-for@apiserver.service
+Requires=wait-for@apiserver.service
 
 [Service]
 ExecStart=/usr/bin/hyperkube \

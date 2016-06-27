@@ -1,0 +1,12 @@
+[Unit]
+After=network.target
+
+Requires=%i.service
+After=%i.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/wait-for %i
+
+[Install]
+WantedBy=multi-user.target

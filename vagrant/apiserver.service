@@ -1,10 +1,11 @@
 [Unit]
 After=network.target
 
-After=etcd.service
-Requires=etcd.service
+After=wait-for@etcd.service
+Requires=wait-for@etcd.service
 
 [Service]
+ExecStartPre=/usr/bin/mkdir -p /var/run/kubernetes
 ExecStart=/usr/bin/rkt run \
 	--net=host \
 	--volume etc-kubernetes,kind=host,source=/etc/kubernetes \
