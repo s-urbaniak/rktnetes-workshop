@@ -60,9 +60,6 @@ groupadd --force --system rkt
 
 ./rkt-v"${version}"/scripts/setup-data-dir.sh
 
-systemctl daemon-reload
-systemd-tmpfiles --create /usr/lib/tmpfiles.d/rkt.conf
-
 gpasswd -a vagrant rkt
 gpasswd -a vagrant rkt-admin
 
@@ -75,11 +72,16 @@ mkdir --parents /var/lib/kubelet
 mkdir --parents /run/kubelet
 mkdir --parents /var/run/kubernetes
 mkdir --parents /etc/rkt/net.d
+mkdir --parents /var/lib/etcd
 
 cp /vagrant/resolv.conf /etc/kubernetes/resolv.conf
 cp /vagrant/k8s.conf /etc/rkt/net.d
 cp /vagrant/bashrc /home/vagrant/.bashrc
 chown vagrant:vagrant ~/.bashrc
+
+sudo cp -r /vagrant/etc-wait-for /etc/wait-for
+install -Dm644 /vagrant/wait-for@.service /usr/lib/systemd/system/wait-for@.service
+install -Dm755 /vagrant/wait-for /usr/bin/wait-for
 
 openssl genrsa -out /etc/kubernetes/kube-serviceaccount.key 2048
 
@@ -97,7 +99,13 @@ rkt fetch --insecure-options=image docker://gcr.io/google_containers/kubedns-amd
 rkt fetch --insecure-options=image docker://gcr.io/google_containers/kube-dnsmasq-amd64:1.3
 rkt fetch --insecure-options=image docker://gcr.io/google_containers/exechealthz-amd64:1.0
 
+systemctl daemon-reload
+systemd-tmpfiles --create /usr/lib/tmpfiles.d/rkt.conf
+
 for unit in rkt-api etcd apiserver controller-manager kubelet scheduler proxy; do
     systemctl enable ${unit}
     systemctl start ${unit}
 done
+
+wait-for kubelet
+kubectl create -f /vagrant/skydns.yaml

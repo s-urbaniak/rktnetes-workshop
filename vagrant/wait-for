@@ -1,0 +1,36 @@
+#!/bin/bash
+
+wait_for() {
+  local url=$1
+  local wait=${2:-1}
+  local times=${3:-30}
+
+  echo url $url wait $wait times $times
+
+  which curl >/dev/null || {
+    echo "curl must be installed"
+    exit 1
+  }
+
+  local i
+  for i in $(seq 1 $times); do
+    echo "trying ${i}/${times}"
+    local out
+    if out=$(curl -fs $url 2>/dev/null); then
+      echo "On try ${i}: ${out}"
+      return 0
+    fi
+    sleep ${wait}
+  done
+  echo "Timed out waiting to answer at ${url}; tried ${times} waiting ${wait} between each"
+  return 1
+}
+
+argsfile=/etc/wait-for/"${1}"
+
+if [[ ! -f $argsfile ]]; then
+  echo ${argsfile} does not exist
+  exit 1
+fi
+
+wait_for $(< $argsfile)
