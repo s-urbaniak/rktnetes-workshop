@@ -10,10 +10,14 @@ dnf -y install \
     openssl \
     systemd-container
 
-curl -O -L https://storage.googleapis.com/kubernetes-release/release/v1.3.0-beta.2/bin/linux/amd64/kubectl
+kurl="https://storage.googleapis.com/kubernetes-release/release/v1.3.0/bin/linux/amd64"
+
+curl -O -L "${kurl}"/kubectl
+[[ $(sha1sum kubectl | cut -d' ' -f1) == "b0a5fbc0b9d9e3d3c56d35eb6ac591200e869240" ]] || (echo "invalid checksum"; exit 1)
 install -Dm755 kubectl /usr/bin/kubectl
 
-curl -O -L https://storage.googleapis.com/kubernetes-release/release/v1.3.0-beta.2/bin/linux/amd64/hyperkube
+curl -O -L "${kurl}"/hyperkube
+[[ $(sha1sum hyperkube | cut -d' ' -f1) == "fb6894d413c3ea0d9950f79642d20b29c48ff0e8" ]] || (echo "invalid checksum"; exit 1)
 install -Dm755 hyperkube /usr/bin/hyperkube
 
 curl -O -L https://github.com/containernetworking/cni/releases/download/v0.3.0/cni-v0.3.0.tgz
@@ -90,7 +94,7 @@ rkt trust --trust-keys-from-https --prefix "quay.io/coreos/hyperkube"
 rkt trust --trust-keys-from-https --prefix "coreos.com/rkt/stage1-fly"
 rkt trust --trust-keys-from-https --prefix "coreos.com/rkt/stage1-coreos"
 
-rkt fetch quay.io/coreos/hyperkube:v1.3.0-beta.2_coreos.0
+rkt fetch quay.io/coreos/hyperkube:v1.3.0_coreos.0
 rkt fetch coreos.com/rkt/stage1-fly:${version}
 rkt fetch coreos.com/rkt/stage1-coreos:${version}
 rkt fetch quay.io/coreos/etcd:v2.3.7
