@@ -11,7 +11,7 @@ ExecStart=/usr/bin/rkt run \
 	--volume var-run-kubernetes,kind=host,source=/var/run/kubernetes \
 	--mount volume=etc-kubernetes,target=/etc/kubernetes \
 	--mount volume=var-run-kubernetes,target=/var/run/kubernetes \
-	quay.io/coreos/hyperkube:v1.3.0-beta.2_coreos.0 \
+	quay.io/coreos/hyperkube:v1.3.0_coreos.0 \
 	--exec=/hyperkube \
 	-- \
 	controller-manager \
