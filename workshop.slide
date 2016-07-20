@@ -31,7 +31,7 @@ Requirements:
 
 * Setup
 
-  git clone https://github.com/coreos/rkt8s-workshop
+  git clone https://github.com/coreos/rktnetes-workshop
   cd vagrant
   vagrant up
   vagrans ssh
@@ -223,7 +223,6 @@ PRs/Contributions welcome!
 
 *Workshop*time*
 
-.link https://s-urbaniak.github.io/rkt8s-workshop
 .link https://github.com/s-urbaniak/inspector
 .link https://coreos.com/rkt/docs/latest/signing-and-verification-guide.html
 
@@ -258,8 +257,9 @@ In a classical "OS" setup we have:
 .image redis-service.png _ 230
 
   sudo rkt run --insecure-options=image docker://redis \
-    s-urbaniak.github.io/rkt8s-workshop/redis-service:0.0.1
+    s-urbaniak.github.io/rktnetes-workshop/redis-service:0.0.1
   rkt list && rkt cat-manifest deadbeef
+  curl <pod-ip>:8080
 
 .link https://github.com/s-urbaniak/redis-service
 
@@ -498,7 +498,7 @@ Primary network proxy on each node.
 
 See the next slides for templates.
 
-* rkt8s - nginx Service
+* rktnetes - nginx Service
 
 *Workshop*time*
 
@@ -520,7 +520,7 @@ See the next slides for templates.
 
   kubectl create -f nginx-svc.yaml
 
-* rkt8s - nginx Replication Controller
+* rktnetes - nginx Replication Controller
 
     kind: ReplicationController
     apiVersion: v1
@@ -548,7 +548,7 @@ See the next slides for templates.
 
   kubectl create -f nginx-rc.yaml
 
-* rkt8s - busybox pod
+* rktnetes - busybox pod
 
 *Workshop*time*
 
@@ -572,7 +572,9 @@ Exec into the pod:
 
   kubectl exec -ti busybox /bin/sh
 
-* rkt8s - Dashboard
+* rktnetes - Dashboard
+
+Deploy the Kubernetes Dashboard
 
 *Workshop*time*
 
@@ -582,3 +584,50 @@ Exec into the pod:
 
 1. Get the assigned NodePort
 2. Open http://<vm-ip>:NodePort on the host
+
+* rktnetes - Ingress
+
+Deploy an Ingress Controller based on traefik
+
+*Workshop*time*
+
+  kubectl create -f /vagrant/traefik.yaml
+
+Add the following entry to `/etc/hosts`, replace `vm-ip` with the VM IP
+
+  <vm-ip>	traefik.rktnetes
+
+.link http://traefik.rktnetes http://traefik.rktnetes
+
+* rktnetes - Ingress
+
+.image traefik-ingress.png _ 1000
+
+* rktnetes - Expose Dashboard via Ingress
+
+*Workshop*time*
+
+  apiVersion: extensions/v1beta1
+  kind: Ingress
+  metadata:
+   name: kubernetes-dashboard-ingress
+   namespace: kube-system
+  spec:
+   rules:
+     - host: dashboard.rktnetes
+       http:
+         paths:
+           - path: /
+             backend:
+               serviceName: kubernetes-dashboard
+               servicePort: 80
+
+Add the following entry to `/etc/hosts`, replace `vm-ip` with the VM IP
+
+  <vm-ip>	dashboard.rktnetes
+
+.link http://dashboard.rktnetes http://dashboard.rktnetes
+
+* rktnetes - Expose Dashboard via Ingress
+
+.image dashboard-ingress.png _ 1000

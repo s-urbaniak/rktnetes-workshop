@@ -1,9 +1,12 @@
-rkt8s-workshop
-==============
-
-Vagrant up your rktnetes cluster.
+# rktnetes-workshop
 
 This repo contains a Vagrantfile and necessary assets to help you launch your [Kubernetes](https://github.com/kubernetes/kubernetes) cluster with [rkt](https://github.com/coreos/rkt) as a runtime.
+
+## Workshop
+
+The workshop slides can be viewed at http://go-talks.appspot.com/github.com/coreos/rktnetes-workshop/workshop.slide.
+
+## Vagrant up your rktnetes cluster.
 
 ```shell
 $ cd vagrant
@@ -86,3 +89,34 @@ UUID		APP		IMAGE NAME					STATE	CREATED		STARTED		NETWORKS
 97c2bef9	hyperkube	quay.io/coreos/hyperkube:v1.3.0-beta.2_coreos.0	running	14 minutes ago	14 minutes ago	
 edee7641	redis		registry-1.docker.io/library/redis:latest	running	1 minute ago	1 minute ago	rkt.kubernetes.io:ip4=10.1.0.2, default-restricted:ip4=172.16.28.2
 ```
+
+Add the Kubernetes Dashboard:
+
+```shell
+[vagrant@localhost ~]$ kubectl create -f https://rawgit.com/kubernetes/dashboard/master/src/deploy/kubernetes-dashboard.yaml
+```
+
+Add an Ingress controller based on [traefik](https://traefik.io/):
+
+```shell
+[vagrant@localhost ~]$ kubectl create -f /vagrant/traefik.yaml
+```
+
+Modify your local `/etc/hosts`, replace the entry with the Vagrant IP address:
+```
+[vagrant@localhost ~]$ ip addr show dev eth1
+3: eth1: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP group default qlen 1000
+    link/ether 52:54:00:90:3f:9a brd ff:ff:ff:ff:ff:ff
+    inet 172.28.128.126/24 brd 172.28.128.255 scope global dynamic eth1
+       valid_lft 3221sec preferred_lft 3221sec
+    inet6 fe80::5054:ff:fe90:3f9a/64 scope link 
+       valid_lft forever preferred_lft forever
+
+[vagrant@localhost ~]$ exit
+
+$ vi /etc/hosts
+...
+172.28.128.126    traefik.rktnetes
+```
+
+Open http://traefik.rktnetes.

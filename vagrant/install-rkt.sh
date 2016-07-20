@@ -4,7 +4,8 @@ set -x
 
 cd $(mktemp -d)
 
-version="1.9.1"
+rkt_version="1.10.1"
+k8s_version="v1.3.2_coreos.0"
 
 dnf -y install \
     openssl \
@@ -27,28 +28,28 @@ tar -xzf cni-v0.3.0.tgz --directory /opt/cni/bin
 curl -sSL https://coreos.com/dist/pubkeys/app-signing-pubkey.gpg | gpg2 --import -
 key=$(gpg2 --with-colons --keyid-format LONG -k security@coreos.com | egrep ^pub | cut -d ':' -f5)
 
-curl -O -L https://github.com/coreos/rkt/releases/download/v"${version}"/rkt-v"${version}".tar.gz
-curl -O -L https://github.com/coreos/rkt/releases/download/v"${version}"/rkt-v"${version}".tar.gz.asc
+curl -O -L https://github.com/coreos/rkt/releases/download/v"${rkt_version}"/rkt-v"${rkt_version}".tar.gz
+curl -O -L https://github.com/coreos/rkt/releases/download/v"${rkt_version}"/rkt-v"${rkt_version}".tar.gz.asc
 
 gpg2 --trusted-key "${key}" --verify-files *.asc
 
-tar xvzf rkt-v"${version}".tar.gz
+tar xvzf rkt-v"${rkt_version}".tar.gz
 
 for flavor in fly coreos kvm; do
-    install -Dm644 rkt-v${version}/stage1-${flavor}.aci /usr/lib/rkt/stage1-images/stage1-${flavor}.aci
+    install -Dm644 rkt-v${rkt_version}/stage1-${flavor}.aci /usr/lib/rkt/stage1-images/stage1-${flavor}.aci
 done
 
-install -Dm755 rkt-v${version}/rkt /usr/bin/rkt
+install -Dm755 rkt-v${rkt_version}/rkt /usr/bin/rkt
 
-for f in rkt-v${version}/manpages/*; do
+for f in rkt-v${rkt_version}/manpages/*; do
     install -Dm644 "${f}" "/usr/share/man/man1/$(basename $f)"
 done
 
-install -Dm644 rkt-v${version}/bash_completion/rkt.bash /usr/share/bash-completion/completions/rkt
-install -Dm644 rkt-v${version}/init/systemd/tmpfiles.d/rkt.conf /usr/lib/tmpfiles.d/rkt.conf
+install -Dm644 rkt-v${rkt_version}/bash_completion/rkt.bash /usr/share/bash-completion/completions/rkt
+install -Dm644 rkt-v${rkt_version}/init/systemd/tmpfiles.d/rkt.conf /usr/lib/tmpfiles.d/rkt.conf
 
 for unit in rkt-gc.{timer,service} rkt-metadata.{socket,service}; do
-    install -Dm644 rkt-v${version}/init/systemd/$unit /usr/lib/systemd/system/$unit
+    install -Dm644 rkt-v${rkt_version}/init/systemd/$unit /usr/lib/systemd/system/$unit
 done
 
 for unit in {socket,service}; do
@@ -62,7 +63,7 @@ done
 groupadd --force --system rkt-admin
 groupadd --force --system rkt
 
-./rkt-v"${version}"/scripts/setup-data-dir.sh
+./rkt-v"${rkt_version}"/scripts/setup-data-dir.sh
 
 gpasswd -a vagrant rkt
 gpasswd -a vagrant rkt-admin
@@ -94,9 +95,9 @@ rkt trust --trust-keys-from-https --prefix "quay.io/coreos/hyperkube"
 rkt trust --trust-keys-from-https --prefix "coreos.com/rkt/stage1-fly"
 rkt trust --trust-keys-from-https --prefix "coreos.com/rkt/stage1-coreos"
 
-rkt fetch quay.io/coreos/hyperkube:v1.3.0_coreos.0
-rkt fetch coreos.com/rkt/stage1-fly:${version}
-rkt fetch coreos.com/rkt/stage1-coreos:${version}
+rkt fetch quay.io/coreos/hyperkube:"${k8s_version}"
+rkt fetch coreos.com/rkt/stage1-fly:${rkt_version}
+rkt fetch coreos.com/rkt/stage1-coreos:${rkt_version}
 rkt fetch quay.io/coreos/etcd:v2.3.7
 
 rkt fetch --insecure-options=image docker://gcr.io/google_containers/kubedns-amd64:1.3

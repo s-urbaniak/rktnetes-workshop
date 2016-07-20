@@ -7,7 +7,6 @@ ExecStart=/usr/bin/rkt run \
 	--net=host \
 	--volume var-lib-etcd,kind=host,source=/var/lib/etcd \
 	--mount volume=var-lib-etcd,target=/var/lib/etcd \
-	--stage1-name=coreos.com/rkt/stage1-coreos:1.9.1 \
 	quay.io/coreos/etcd:v2.3.7 \
 	--exec=/etcd \
 	-- \
